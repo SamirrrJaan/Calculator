@@ -3,7 +3,7 @@
 public class Main {
     public static void main(String[] args) {
         CalculationMachine calc = new CalculationMachine();
-        calc.setEquation("-(-2+1)");
+        calc.setEquation("SIN(3.1415*COS(3.1415))");
         System.out.println(calc.getAnswer());
 
     }
