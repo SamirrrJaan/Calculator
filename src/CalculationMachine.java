@@ -11,7 +11,6 @@ public class CalculationMachine {
 
     public String getAnswer() {
         String result = "Errors: not correct equation";
-        double resultD = 0;
         int bracketOpenCount = 0;
         int bracketCloseCount = 0;
         int bracketCount = 0;
@@ -53,57 +52,7 @@ public class CalculationMachine {
             }
         }
         //Тут неведомо сложный механизм замены чисел на переменные
-        if(noErrors) {
-            boolean firstDigit = true;
-            boolean digitWasFound = true;
-            boolean digitWasFound4 = true;
-            int firstDigitId = 0;
-            int lastDigitId = 0;
-            equationSimplified.append(equation);
-            System.out.println(equationSimplified);
-            while(digitWasFound4) {
-                for (int i = 0; i < equationSimplified.length(); i++) {
-                    digitWasFound = false;
-                    for (int j = 0; j < digitsArray.length; j++) {
-                        if(equationSimplified.charAt(i) == digitsArray[j]) {
-                            digitWasFound = true;
-                            if(firstDigit) {
-                                firstDigitId = i;
-                                lastDigitId = i;
-                                firstDigit = false;
-                                break;
-                            }
-                            else {
-                                lastDigitId++;
-                                break;
-                            }
-                        }
-
-                    }
-                    if(!firstDigit && !digitWasFound) {
-                        numbersArray[varId] = equationSimplified.substring(firstDigitId, lastDigitId + 1);
-                        equationSimplified.delete(firstDigitId, lastDigitId + 1);
-                        equationSimplified.insert(firstDigitId, variables[varId]);
-                        varId++;
-                        firstDigit = true;
-                        firstDigitId = 0;
-                        lastDigitId = 0;
-                        break;
-                    }
-                }
-                System.out.println(equationSimplified);
-                System.out.println(Arrays.toString(numbersArray));
-                digitWasFound4 = false;
-                for (int i = 0; i < equationSimplified.length(); i++) {
-                    for (int j = 0; j < digitsArray.length; j++) {
-                        if(equationSimplified.charAt(i) == digitsArray[j]) {
-                            digitWasFound4 = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        simplifyTheEquation();
         //Механизм такой:
         //1.Считаем количество скобок.
         //2.Делаем по порядку сначала самые вложенные скобки, а в скобках по порядку действия
@@ -197,6 +146,70 @@ public class CalculationMachine {
         return result;
     }
 
+    private void simplifyTheEquation() {
+        boolean firstDigit = true;
+        boolean digitWasFound = true;
+        boolean digitWasFound4 = true;
+        int firstDigitId = 0;
+        int lastDigitId = 0;
+        equationSimplified.append(equation);
+        System.out.println(equationSimplified);
+        while(digitWasFound4) {
+            for (int i = 0; i < equationSimplified.length(); i++) {
+                digitWasFound = false;
+                for (int j = 0; j < digitsArray.length; j++) {
+                    if(equationSimplified.charAt(i) == digitsArray[j]) {
+                        digitWasFound = true;
+                        if(firstDigit) {
+                            firstDigitId = i;
+                            lastDigitId = i;
+                            firstDigit = false;
+                            break;
+                        }
+                        else {
+                            lastDigitId++;
+                            break;
+                        }
+                    }
+
+                }
+                if(!firstDigit && !digitWasFound) {
+                    numbersArray[varId] = equationSimplified.substring(firstDigitId, lastDigitId + 1);
+                    equationSimplified.delete(firstDigitId, lastDigitId + 1);
+                    equationSimplified.insert(firstDigitId, variables[varId]);
+                    varId++;
+                    firstDigit = true;
+                    firstDigitId = 0;
+                    lastDigitId = 0;
+                    break;
+                }
+            }
+            System.out.println(equationSimplified);
+            System.out.println(Arrays.toString(numbersArray));
+            digitWasFound4 = false;
+            for (int i = 0; i < equationSimplified.length(); i++) {
+                for (int j = 0; j < digitsArray.length; j++) {
+                    if(equationSimplified.charAt(i) == digitsArray[j]) {
+                        digitWasFound4 = true;
+                        break;
+                    }
+                }
+            }
+        }
+        for(int i = 0; i < equationSimplified.length() - 1; i++) {
+            if(equationSimplified.charAt(i) == '(' && equationSimplified.charAt(i+1) == '-') {
+                for(int j = 0; j < variables.length; j++) {
+                    if(equationSimplified.charAt(i+2) == variables[j]) {
+                        numbersArray[j] = "-" + numbersArray[j];
+                        equationSimplified.deleteCharAt(i+1);
+                        System.out.println(equationSimplified);
+                        System.out.println(Arrays.toString(numbersArray));
+                    }
+                }
+            }
+        }
+    }
+
     private String mathAction(char action, char first, char second) {
         String answer = "";
         double firstNum = 0;
@@ -233,6 +246,10 @@ public class CalculationMachine {
 
     public void setEquation(String equation) {
         this.equation = equation;
+        this.equation += " ";
+        if(equation.charAt(0) == '-') {
+            this.equation = "0" + this.equation;
+        }
     }
 
     public void error(String type) {
@@ -249,8 +266,8 @@ public class CalculationMachine {
         }
     }
     /*Надо сделать:
-    1. Разобраться с тем, что в конце введённого выражения должен быть пробел.
-    2. Разобраться с отрицательными числами
+    V 1. Разобраться с тем, что в конце введённого выражения должен быть пробел.
+    V 2. Разобраться с отрицательными числами
     3. Сделать алгоритм, заменяющий тригонометрические функции на какой-нибудь оператор, типо:
     SIN -> 's'
     COS -> 'c'
