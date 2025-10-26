@@ -5,6 +5,8 @@ public class Main {
         CalculationMachine calc = new CalculationMachine();
         calc.setEquation("12+(-1)");
         System.out.println(calc.getAnswer());
+        MainWindow mainWindow = new MainWindow();
+        mainWindow.createInterface();
 
     }
 }
