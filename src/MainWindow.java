@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class MainWindow {
     private int windowHeight;
@@ -29,20 +30,22 @@ public class MainWindow {
             main.setLayout(mainLayout);
 
         JPanel top = new JPanel();
-            top.setLayout(new GridLayout(1,2,0,0));
-            JButton[] topButtons = new JButton[2];
-            for(int i = 0; i < 2; i++) {
-                topButtons[i] = new JButton("TOP" + i);
-                top.add(topButtons[i]);
-            }
+            top.setLayout(new GridLayout(1,2,0,10));
+            JTextField equationField = new JTextField(10);
+            JTextField equationField1 = new JTextField(10);
+            top.add(equationField);
+            top.add(equationField1);
+            equationField.setFont(new Font("Arial", 0 , 70));
 
         JPanel half = new JPanel();
             half.setLayout(new GridLayout(1,2,0,0));
             JButton[] halfButtons = new JButton[2];
-            for(int i = 0; i < 2; i++) {
-                halfButtons[i] = new JButton("HALF" + i);
-                half.add(halfButtons[i]);
-            }
+            halfButtons[0] = new JButton("<-");
+            halfButtons[0].setActionCommand("goToLeft");
+            halfButtons[1] = new JButton("->");
+            halfButtons[1].setActionCommand("goToRight");
+            half.add(halfButtons[0]);
+            half.add(halfButtons[1]);
 
         JPanel medium = new JPanel();
             medium.setLayout(new GridLayout(2,8,0,0));
@@ -64,11 +67,16 @@ public class MainWindow {
                 bottomButtons[i] = new JButton("BOTTOM" + i);
                 bottom.add(bottomButtons[i]);
             }
-
+        ActionListener buttonListener = new ButtonsListener();
+        halfButtons[0].addActionListener(buttonListener);
+        halfButtons[1].addActionListener(buttonListener);
         main.add(top);
         main.add(medium);
         main.add(bottom);
         frame.getContentPane().add(main);
         frame.setVisible(true);
     }
+
+
+
 }
