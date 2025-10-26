@@ -19,29 +19,56 @@ public class MainWindow {
 
     public void createInterface() {
         JFrame frame = new JFrame("GridLayOut");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(windowWidth, windowHeight);
-        // задаём минимальный размер окна
-        frame.setMinimumSize(new Dimension(640, 480));
-        frame.setLocationRelativeTo(null);
-        JPanel panel = new JPanel();
-        JPanel[] emptyPanels = new JPanel[11];
-        for (int i = 0; i < 11; i++) {
-            emptyPanels[i] = new JPanel();
-        }
-        JButton[] buttons = new JButton[24]; // под 6 кнопок
-        // Три ряда, по две кнопки в каждом горизонтальный промежуток - 50px, вертикальный - 30px
-        GridLayout gridLayout = new GridLayout(5, 7, 0, 0);
-        panel.setLayout(gridLayout);
-        for (int i = 0; i < 11; i++) { // сделаем кнопочную панель из 6-и кнопок
-            panel.add(emptyPanels[i]);
-        }
-        for (int i = 0; i < 24; i++) { // сделаем кнопочную панель из 6-и кнопок
-            buttons[i] = new JButton("" + (i + 1));
-            panel.add(buttons[i]);
-        }
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(windowWidth, windowHeight);
+            frame.setMinimumSize(new Dimension(640, 480));
+            frame.setLocationRelativeTo(null);
 
-        frame.add(panel);
+        JPanel main = new JPanel();
+            BoxLayout mainLayout = new BoxLayout(main, BoxLayout.Y_AXIS);
+            main.setLayout(mainLayout);
+
+        JPanel top = new JPanel();
+            top.setLayout(new GridLayout(1,2,0,0));
+            JButton[] topButtons = new JButton[2];
+            for(int i = 0; i < 2; i++) {
+                topButtons[i] = new JButton("TOP" + i);
+                top.add(topButtons[i]);
+            }
+
+        JPanel half = new JPanel();
+            half.setLayout(new GridLayout(1,2,0,0));
+            JButton[] halfButtons = new JButton[2];
+            for(int i = 0; i < 2; i++) {
+                halfButtons[i] = new JButton("HALF" + i);
+                half.add(halfButtons[i]);
+            }
+
+        JPanel medium = new JPanel();
+            medium.setLayout(new GridLayout(2,8,0,0));
+            JButton[] mediumButtons = new JButton[16];
+            for(int i = 0; i < 16; i++) {
+                if(i == 2) {
+                    medium.add(half);
+                }
+                else {
+                    mediumButtons[i] = new JButton("MEDIUM" + i);
+                    medium.add(mediumButtons[i]);
+                }
+            }
+
+        JPanel bottom = new JPanel();
+            bottom.setLayout(new GridLayout(2,8,0,0));
+            JButton[] bottomButtons = new JButton[16];
+            for(int i = 0; i < 16; i++) {
+                bottomButtons[i] = new JButton("BOTTOM" + i);
+                bottom.add(bottomButtons[i]);
+            }
+
+        main.add(top);
+        main.add(medium);
+        main.add(bottom);
+        frame.getContentPane().add(main);
         frame.setVisible(true);
     }
 }
