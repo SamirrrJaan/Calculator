@@ -372,6 +372,7 @@ public class CalculationMachine {
         if(equation.charAt(0) == '-') {
             this.equation = "0" + this.equation;
         }
+        varId = 0;
     }
 
     public void error(String type) {
