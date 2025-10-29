@@ -7,7 +7,7 @@ public class MainWindow {
     private int windowWidth;
     private JTextField equationField = new JTextField(10);
     private JTextField answerField = new JTextField(10);
-
+    private Font myFont = new Font("Arial", 0 , 70);
     public MainWindow() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         windowWidth = gd.getDisplayMode().getWidth() / 2;
@@ -39,7 +39,8 @@ public class MainWindow {
             JButton equalsButton = new JButton("=");
             equalsButton.setActionCommand("=");
             top.add(equalsButton);
-            equationField.setFont(new Font("Arial", 0 , 70));
+            equationField.setFont(myFont);
+            answerField.setFont(myFont);
 
         JPanel half = new JPanel();
             half.setLayout(new GridLayout(1,2,0,0));
@@ -140,12 +141,15 @@ public class MainWindow {
 
         ActionListener buttonListener = new ButtonsListener();
         for(int i = 0; i < 16; i++) {
+            bottomButtons[i].setFont(myFont);
             bottomButtons[i].addActionListener(buttonListener);
         }
         for(int i = 0; i < 16; i++) {
+            mediumButtons[i].setFont(myFont);
             mediumButtons[i].addActionListener(buttonListener);
         }
         for(int i = 0; i < 2; i++) {
+            halfButtons[i].setFont(myFont);
             halfButtons[i].addActionListener(buttonListener);
         }
         equalsButton.addActionListener(buttonListener);

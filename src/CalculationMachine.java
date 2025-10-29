@@ -8,10 +8,18 @@ public class CalculationMachine {
     private String[] numbersArray = new String[100];
     private final char[] digitsArray = {'0','1','2','3','4','5','6','7','8','9','.'};
     private final char[] actionsArray = {'s','c','t','k','S','C','T','K','^','*','/','+','-'};
-    private char[] variables = {'a','b','d','e','f','g','h','i','j','l','m','n','o','p','q','r','u','v','w','x','y','z'};
+    private char[] variables = {'a','b','d','e','f','g','h','i','j','l','m','n','o','p','q','r','u','v','w','x','y','z','A','B','C','D',
+    'E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
     private int varId = 0;
     private int bracketCount = 0;
     private boolean noErrors = true;
+
+    public CalculationMachine() {
+        for(int i = 0; i < numbersArray.length; i++) {
+            numbersArray[i] = "nothing here";
+        }
+        System.out.println("AAAAAAAAAAAAAAAAAAAAAAAA " + numbersArray[0]);
+    }
 
     public String getAnswer() {
         String result = "Errors: not correct equation";
@@ -55,7 +63,6 @@ public class CalculationMachine {
                 StringBuilder subEquation = new StringBuilder(equationSimplified.substring(bracketPowerMaxId + 1, bracketPowerMaxCloseId));
                 System.out.println(subEquation);
                 int operatorsCount = 0; //Дальше проводим счёт сколько в этой строке операторов
-                // (в планах тригонометрические функции обозвать какими-нибудь символами)
                 for(int i = 0; i < subEquation.length(); i++) {
                     for(int j = 0; j < actionsArray.length; j++) {
                         if(subEquation.charAt(i) == actionsArray[j]) {
@@ -83,14 +90,30 @@ public class CalculationMachine {
                         }
                     }
                     //отправляем в mathAction оператора и элементы сбоку от него(два числа)
+                    System.out.println(Arrays.toString(numbersArray));
                     String str = mathAction(subEquation.charAt(operationFirst), subEquation.charAt(operationFirst - 1),
                             subEquation.charAt(operationFirst + 1));
+                    for (int j = 0; j < variables.length; j++) {
+                        if(subEquation.charAt(operationFirst - 1) == variables[j]) {
+                            numbersArray[j] = "nothing here";
+                        }
+                        if(subEquation.charAt(operationFirst + 1) == variables[j]) {
+                            numbersArray[j] = "nothing here";
+                        }
+                    }
+                    System.out.println(Arrays.toString(numbersArray));
                     System.out.println(str);
+                    for (int j = 0; j < numbersArray.length; j++) {
+                        if(numbersArray[j].equals("nothing here")) {
+                            varId = j;
+                            break;
+                        }
+                    }
                     numbersArray[varId] = str; //Вводим новую переменную и соот.ей элемент в массиве numbersArray
+                    System.out.println(Arrays.toString(numbersArray));
                     subEquation.delete((operationFirst - 1), (operationFirst + 2));//Заменяем в подстроке то, что мы посчитали на новую переменную
                     subEquation.insert(operationFirst - 1, variables[varId]);
                     System.out.println(numbersArray[varId]);
-                    varId++;
                     System.out.println(subEquation);
                 }
                 //Случай, если скобок нет
@@ -129,6 +152,7 @@ public class CalculationMachine {
             if(bracketCloseCount > bracketOpenCount) {
                 error("bracketOpensAfterClose");
                 noErrors = false;
+                break;
             }
         }
         // Если нечётное кол-во скобок
@@ -186,10 +210,15 @@ public class CalculationMachine {
 
                 }
                 if(!firstDigit && !digitWasFound) {
+                    for(int j = 0; j < numbersArray.length; j++) {
+                        if(numbersArray[j].equals("nothing here")) {
+                            varId = j;
+                            break;
+                        }
+                    }
                     numbersArray[varId] = equationSimplified.substring(firstDigitId, lastDigitId + 1);
                     equationSimplified.delete(firstDigitId, lastDigitId + 1);
                     equationSimplified.insert(firstDigitId, variables[varId]);
-                    varId++;
                     firstDigit = true;
                     firstDigitId = 0;
                     lastDigitId = 0;
@@ -367,12 +396,15 @@ public class CalculationMachine {
     }
 
     public void setEquation(String equation) {
-        this.equation = equation;
-        this.equation += " ";
+        this.equation = equation; //Выражение меняется
+        this.equation += " ";//В конец пробел для удобства
         if(equation.charAt(0) == '-') {
-            this.equation = "0" + this.equation;
+            this.equation = "0" + this.equation; //Если в самом начале минус, то представим, что есть ещё 0 ("-1+2" -> "0-1+2 ")
         }
-        varId = 0;
+        equationSimplified.delete(0, equationSimplified.length());//Из вспомогательного equationSimplified удаляем всё, что там осталось
+        for(int i = 0; i < numbersArray.length; i++) {
+            numbersArray[i] = "nothing here"; //Очищаем массив чисел
+        }
     }
 
     public void error(String type) {
