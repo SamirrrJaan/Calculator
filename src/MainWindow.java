@@ -1,16 +1,34 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.io.*;
 
 public class MainWindow {
     private int windowHeight;
     private int windowWidth;
     private JTextField equationField = new JTextField(10);
     private JTextField answerField = new JTextField(10);
-    private Font myFont = new Font("Arial", 0 , 70);
+    private JButton equalsButton = new JButton();
+    private Font actionsFont = new Font("Arial", 0 , 20);
+    private Font fieldsFont = new Font("Arial", 0 , 20);
+
+    private JPanel[] buttonRows = new JPanel[5];
+    private JButton[][] buttons = new JButton[5][8];
+    private String[][] buttonNames = {
+            {"deg", "str", "?", "set", "AC",   "<-", "->", "<X"},
+            {"sin",  "+",  "-",  "*",   "/",    "1",  "2",   "3"},
+            {"cos",  "^", "sqrt","root","10^",  "4",  "5",   "6"},
+            {"tg",  "log", "lg", "ln",  "|",    "7",  "8",   "9"},
+            {"ctg",  "Pi",  "e", "x!",  ".",    "(",  "0",   ")"}
+    };
+    private GridLayout buttonsLayout = new GridLayout(1,8,0,0);
+    private JFrame infoWindow = new JFrame();
+
     public MainWindow() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         windowWidth = gd.getDisplayMode().getWidth() / 2;
+        windowHeight = gd.getDisplayMode().getHeight() / 2;
+        windowWidth = 1280;
         windowHeight = gd.getDisplayMode().getHeight() / 2;
         if(windowWidth < 640) {
             windowWidth = 640;
@@ -18,146 +36,124 @@ public class MainWindow {
         if(windowHeight < 640) {
             windowHeight = 640;
         }
-
+        createInfoWindow();
     }
 
     public void createInterface() {
-        JFrame frame = new JFrame("GridLayOut");
+        JFrame frame = new JFrame("CalculatorSJ");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(windowWidth, windowHeight);
             frame.setMinimumSize(new Dimension(640, 480));
             frame.setLocationRelativeTo(null);
+            frame.addComponentListener(
+                new ComponentAdapter() {
+                    public void componentResized(ComponentEvent e) {
+                        windowHeight = frame.getHeight();
+                        windowWidth = frame.getWidth();
+                        int size = Math.toIntExact(Math.round(0.084*windowWidth-37));
+                        System.out.println(size);
+                        if(size > 73) {
+                            size = 73;
+                        }
+                        if(size < 17) {
+                            size = 17;
+                        }
+                        actionsFont = new Font("Arial", Font.PLAIN, size);
+                        fieldsFont = new Font("Arial", Font.PLAIN, size-30);
+                        for(int i = 0; i < 5; i++) {
+                            for(int j = 0; j < 8; j++){
+                                buttons[i][j].setFont(actionsFont);
+                            }
+                        }
+                        equationField.setFont(fieldsFont);
+                        answerField.setFont(fieldsFont);
+                        equalsButton.setFont(fieldsFont);
+
+                    }
+
+                }
+            );
 
         JPanel main = new JPanel();
-            BoxLayout mainLayout = new BoxLayout(main, BoxLayout.Y_AXIS);
+            GridLayout mainLayout = new GridLayout(6,1,0,0);
             main.setLayout(mainLayout);
 
-        JPanel top = new JPanel();
-            top.setLayout(new GridLayout(1,2,0,10));
-            top.add(equationField);
-            top.add(answerField);
+        JPanel row1 = new JPanel();
+            GridLayout row1Layout = new GridLayout(1,2,0,0);
+            row1.setLayout(row1Layout);
+            row1.add(equationField);
+            JPanel subRow1 = new JPanel();
+            subRow1.setLayout(row1Layout);
+            subRow1.add(answerField);
             JButton equalsButton = new JButton("=");
             equalsButton.setActionCommand("=");
-            top.add(equalsButton);
-            equationField.setFont(myFont);
-            answerField.setFont(myFont);
+            //equalsButton.setBorder(Border );???????????????????????????
+            subRow1.add(equalsButton);
+            row1.add(subRow1);
 
-        JPanel half = new JPanel();
-            half.setLayout(new GridLayout(1,2,0,0));
-            JButton[] halfButtons = new JButton[2];
-            halfButtons[0] = new JButton("<-");
-            halfButtons[0].setActionCommand("goToLeft");
-            halfButtons[1] = new JButton("->");
-            halfButtons[1].setActionCommand("goToRight");
-            half.add(halfButtons[0]);
-            half.add(halfButtons[1]);
-
-        JPanel medium = new JPanel();
-            medium.setLayout(new GridLayout(2,8,0,0));
-            JButton[] mediumButtons = new JButton[16];
-            mediumButtons[0] = new JButton("degrees");
-                mediumButtons[0].setActionCommand("degrees");
-            mediumButtons[1] = new JButton("straight");
-                mediumButtons[1].setActionCommand("straight");
-            mediumButtons[2] = new JButton("empty");
-                mediumButtons[2].setActionCommand("empty");
-            mediumButtons[3] = new JButton("<[x]");
-                mediumButtons[3].setActionCommand("<[x]");
-            mediumButtons[4] = new JButton("log");
-                mediumButtons[4].setActionCommand("log");
-            mediumButtons[5] = new JButton("1");
-                mediumButtons[5].setActionCommand("1");
-            mediumButtons[6] = new JButton("2");
-                mediumButtons[6].setActionCommand("2");
-            mediumButtons[7] = new JButton("3");
-                mediumButtons[7].setActionCommand("3");
-            mediumButtons[8] = new JButton("+");
-                mediumButtons[8].setActionCommand("+");
-            mediumButtons[9] = new JButton("-");
-                mediumButtons[9].setActionCommand("-");
-            mediumButtons[10] = new JButton("*");
-                mediumButtons[10].setActionCommand("*");
-            mediumButtons[11] = new JButton("/");
-                mediumButtons[11].setActionCommand("/");
-            mediumButtons[12] = new JButton("ln");
-                mediumButtons[12].setActionCommand("ln");
-            mediumButtons[13] = new JButton("4");
-                mediumButtons[13].setActionCommand("4");
-            mediumButtons[14] = new JButton("5");
-                mediumButtons[14].setActionCommand("5");
-            mediumButtons[15] = new JButton("6");
-                mediumButtons[15].setActionCommand("6");
-            for(int i = 0; i < 16; i++) {
-                if(i == 2) {
-                    medium.add(half);
-                }
-                else {
-                    medium.add(mediumButtons[i]);
-                }
+        for(int i = 0; i < 5; i++) {
+            buttonRows[i] = new JPanel();
+            buttonRows[i].setLayout(buttonsLayout);
+            for(int j = 0; j < 8; j++) {
+                buttons[i][j] = new JButton(buttonNames[i][j]);
+                buttons[i][j].setActionCommand(buttonNames[i][j]);
+                buttonRows[i].add(buttons[i][j]);
             }
-
-
-
-
-        JPanel bottom = new JPanel();
-            bottom.setLayout(new GridLayout(2,8,0,0));
-            JButton[] bottomButtons = new JButton[16];
-            bottomButtons[0] = new JButton("-");
-                bottomButtons[0].setActionCommand("-");
-            bottomButtons[1] = new JButton("sqrt");
-                bottomButtons[1].setActionCommand("sqrt");
-            bottomButtons[2] = new JButton("^");
-                bottomButtons[2].setActionCommand("^");
-            bottomButtons[3] = new JButton("-");
-                bottomButtons[3].setActionCommand("-");
-            bottomButtons[4] = new JButton("Pi");
-                bottomButtons[4].setActionCommand("Pi");
-            bottomButtons[5] = new JButton("7");
-                bottomButtons[5].setActionCommand("7");
-            bottomButtons[6] = new JButton("8");
-                bottomButtons[6].setActionCommand("8");
-            bottomButtons[7] = new JButton("9");
-                bottomButtons[7].setActionCommand("9");
-            bottomButtons[8] = new JButton("tg");
-                bottomButtons[8].setActionCommand("tg");
-            bottomButtons[9] = new JButton("ctg");
-                bottomButtons[9].setActionCommand("ctg");
-            bottomButtons[10] = new JButton("sin");
-                bottomButtons[10].setActionCommand("sin");
-            bottomButtons[11] = new JButton("cos");
-                bottomButtons[11].setActionCommand("cos");
-            bottomButtons[12] = new JButton("e");
-                bottomButtons[12].setActionCommand("e");
-            bottomButtons[13] = new JButton("(");
-                bottomButtons[13].setActionCommand("(");
-            bottomButtons[14] = new JButton("0");
-                bottomButtons[14].setActionCommand("0");
-            bottomButtons[15] = new JButton(")");
-                bottomButtons[15].setActionCommand(")");
-            for(int i = 0; i < 16; i++) {
-                bottom.add(bottomButtons[i]);
-            }
-
+        }
 
         ActionListener buttonListener = new ButtonsListener();
-        for(int i = 0; i < 16; i++) {
-            bottomButtons[i].setFont(myFont);
-            bottomButtons[i].addActionListener(buttonListener);
-        }
-        for(int i = 0; i < 16; i++) {
-            mediumButtons[i].setFont(myFont);
-            mediumButtons[i].addActionListener(buttonListener);
-        }
-        for(int i = 0; i < 2; i++) {
-            halfButtons[i].setFont(myFont);
-            halfButtons[i].addActionListener(buttonListener);
-        }
         equalsButton.addActionListener(buttonListener);
-        main.add(top);
-        main.add(medium);
-        main.add(bottom);
+        for(int i = 0; i < 5; i++) {
+            for(int j = 0; j < 8; j++) {
+                buttons[i][j].addActionListener(buttonListener);
+            }
+        }
+        main.add(row1);
+        for(int i = 0; i < 5; i++) {
+            main.add(buttonRows[i]);
+        }
         frame.getContentPane().add(main);
         frame.setVisible(true);
+    }
+
+    public void createInfoWindow()  {
+        infoWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        infoWindow.setSize(640, 480);
+        JTextArea info = new JTextArea("Информация/Information");
+        info.setFont(actionsFont);
+        String everything = null;
+        try {
+            everything = readFile("src/Texts/infoText.txt");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        info.setText(everything);
+        JPanel infoPanel = new JPanel();
+        infoPanel.add(info);
+        JScrollPane infoPane = new JScrollPane(infoPanel);
+        infoPane.getVerticalScrollBar().setUnitIncrement(16);
+        infoWindow.add(infoPane);
+    }
+
+    public String readFile(String filename) throws IOException
+    {
+        String content = null;
+        File file = new File(filename); // For example, foo.txt
+        FileReader reader = null;
+        try {
+            reader = new FileReader(file);
+            char[] chars = new char[(int) file.length()];
+            reader.read(chars);
+            content = new String(chars);
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(reader != null){
+                reader.close();
+            }
+        }
+        return content;
     }
 
     public void setAnswer(String answer) {
@@ -165,32 +161,32 @@ public class MainWindow {
         answerField.setText(answer);
     }
 
-    public void setEquation(String equation, String action) {
-        // action "d" - delete, a - others
-        int caretPosition = equationField.getCaretPosition() + 1;
-        if(action.equals("a")) {
-            equationField.setText(equation);
-            equationField.requestFocusInWindow();
-            equationField.setCaretPosition(caretPosition);
+    public void setEquation(String equation) {
+        int caretPos = equationField.getCaretPosition();
+        equationField.setText(equation);
+        equationField.requestFocusInWindow();
+        equationField.setCaretPosition(caretPos + 1);
+    }
+
+    public void moveCaret(String where, int howFar) {
+        equationField.requestFocusInWindow();
+        if(where.equals("Right")) {
+            equationField.setCaretPosition(equationField.getCaretPosition() + howFar);
         }
         else {
-            equationField.setText(equation);
-            equationField.requestFocusInWindow();
-            equationField.setCaretPosition(caretPosition - 2);
+            equationField.setCaretPosition(equationField.getCaretPosition() - howFar);
         }
     }
 
-    public void moveCaret(String where) {
-        equationField.requestFocusInWindow();
-        if(where.equals("Right")) {
-            equationField.setCaretPosition(equationField.getCaretPosition() + 1);
-        }
-        else {
-            equationField.setCaretPosition(equationField.getCaretPosition() - 1);
-        }
+    public void openInfoWindow() {
+        infoWindow.setVisible(true);
     }
 
     public int getCaretPosition() {
         return equationField.getCaretPosition();
+    }
+
+    public JButton getButton(int i, int j) {
+         return buttons[i][j];
     }
 }

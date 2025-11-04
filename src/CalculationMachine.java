@@ -13,6 +13,7 @@ public class CalculationMachine {
     private int varId = 0;
     private int bracketCount = 0;
     private boolean noErrors = true;
+    private char angleSize = 'd';
 
     public CalculationMachine() {
         for(int i = 0; i < numbersArray.length; i++) {
@@ -22,7 +23,7 @@ public class CalculationMachine {
     }
 
     public String getAnswer() {
-        String result = "Errors: not correct equation";
+        String result = "Incorrect";
         checkForErrors();
         if(noErrors) {
             //Тут неведомо сложный механизм замены чисел на переменные
@@ -419,6 +420,10 @@ public class CalculationMachine {
                 System.out.println(type);
                 break;
         }
+    }
+
+    public void setAngleSize(char angleSize) {
+        this.angleSize = angleSize;
     }
     /*Надо сделать:
     V 1. Разобраться с тем, что в конце введённого выражения должен быть пробел.
