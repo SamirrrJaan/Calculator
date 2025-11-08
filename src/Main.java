@@ -13,7 +13,7 @@ public class Main {
 
 }
 
-
-//Разобраться почему при INCORRECT ответ больше не рабоатет
+//Остались root и sqrt,
 //Работать дальше над CalculationMachine - сделать 2(6+1)
 //Сделать settings
+//Хочется сделать ans

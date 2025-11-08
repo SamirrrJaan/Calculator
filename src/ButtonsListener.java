@@ -11,6 +11,7 @@ public class ButtonsListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         int caretPos = mainWindow.getCaretPosition();
+        System.out.println(caretPos);
         switch (command) {
             case "<-":
                 mainWindow.moveCaret("Left", 1);
@@ -19,13 +20,23 @@ public class ButtonsListener implements ActionListener {
                 mainWindow.moveCaret("Right", 1);
                 break;
             case "<X":
-                equation.deleteCharAt(caretPos - 1);
-                mainWindow.setEquation(equation.toString());
-                mainWindow.moveCaret("Left", 2);
+                if(caretPos >= 2) {
+                    equation.deleteCharAt(caretPos - 1);
+                    mainWindow.moveCaret("Left", 1);
+                    mainWindow.setEquationAfterDelete(equation.toString());
+                }
+                else if(caretPos == 1){
+                    mainWindow.moveCaret("Left", 1);
+                    equation.deleteCharAt(0);
+                    mainWindow.setEquationAfterDelete(equation.toString());
+                }
+                else {
+                    mainWindow.setEquationAfterDelete(equation.toString());
+                }
                 break;
             case "AC":
                 equation.delete(0, equation.length());
-                mainWindow.setEquation(equation.toString());
+                mainWindow.setEquationAfterDelete(equation.toString());
                 break;
             case "=":
                 calc.setEquation(equation.toString());
@@ -161,7 +172,7 @@ public class ButtonsListener implements ActionListener {
                     howFar = 3;
                 }
                 else {
-                    equation.insert(caretPos, "arctg()");
+                    equation.insert(caretPos, "arcctg()");
                     howFar = 6;
                 }
                 mainWindow.setEquation(equation.toString());
@@ -211,6 +222,10 @@ public class ButtonsListener implements ActionListener {
                 break;
             case "|":
                 equation.insert(caretPos, "|");
+                mainWindow.setEquation(equation.toString());
+                break;
+            case "x!":
+                equation.insert(caretPos, "!");
                 mainWindow.setEquation(equation.toString());
                 break;
             case "?":

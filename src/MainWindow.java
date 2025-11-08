@@ -157,8 +157,8 @@ public class MainWindow {
     }
 
     public void setAnswer(String answer) {
-        answerField.requestFocusInWindow();
         answerField.setText(answer);
+        answerField.requestFocusInWindow();
     }
 
     public void setEquation(String equation) {
@@ -166,6 +166,13 @@ public class MainWindow {
         equationField.setText(equation);
         equationField.requestFocusInWindow();
         equationField.setCaretPosition(caretPos + 1);
+    }
+
+    public void setEquationAfterDelete(String equation) {
+        int caretPos = equationField.getCaretPosition();
+        equationField.setText(equation);
+        equationField.requestFocusInWindow();
+        equationField.setCaretPosition(caretPos);
     }
 
     public void moveCaret(String where, int howFar) {
@@ -177,6 +184,7 @@ public class MainWindow {
             equationField.setCaretPosition(equationField.getCaretPosition() - howFar);
         }
     }
+
 
     public void openInfoWindow() {
         infoWindow.setVisible(true);
