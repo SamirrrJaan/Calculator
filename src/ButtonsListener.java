@@ -2,11 +2,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class ButtonsListener implements ActionListener {
-    private CalculationMachine calc = new CalculationMachine();
+    private CalculationMachine calc;
     private StringBuilder equation = new StringBuilder();
     private MainWindow mainWindow = Main.getMainWindow();
     private boolean trigonometryStraight = true;
     private int howFar = 0;
+
+    public ButtonsListener(CalculationMachine calc) {
+        this.calc = calc;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
@@ -36,9 +41,13 @@ public class ButtonsListener implements ActionListener {
                 break;
             case "AC":
                 equation.delete(0, equation.length());
+                calc.setEquation("");
                 mainWindow.setEquationAfterDelete(equation.toString());
+                mainWindow.setAnswer("");
                 break;
             case "=":
+                equation.delete(0, equation.length());
+                equation.insert(0, mainWindow.getEquation());
                 calc.setEquation(equation.toString());
                 mainWindow.setAnswer(calc.getAnswer());
                 break;

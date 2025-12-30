@@ -9,13 +9,21 @@ public class CalculationMachine {
     private StringBuilder equationSimplified = new StringBuilder();
     private String[] numbersArray = new String[100];
     private final char[] digitsArray = {'0','1','2','3','4','5','6','7','8','9','.'};
-    private final char[] actionsArray = {'m','o','l','L','s','c','t','k','S','C','T','K','^','*','/','+','-','f'};
-    private char[] variables = {'a','b','d','e','g','h','i','j','n','p','q','r','u','v','w','x','y','z','A','B','C','D',
-    'E','F','G','H','I','J','K','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'};
+    private final char[] actionsArray = {'r','R','m','o','l','L','s','c','t','k','S','C','T','K','^','*','/','+','-','f'};
+    private char[] variables = {'a','b','d','e','g','h','i','j','n','p','q','u','v','w','x','y','z','A','B','C','D',
+    'E','F','G','H','I','J','K','M','N','O','P','Q','S','T','U','V','W','X','Y','Z'};
     private int varId = 0;
     private int bracketCount = 0;
     private boolean noErrors = true;
     private char angleSize = 'd';
+
+    public String getInfo() {
+        String str = "";
+        str = "equation: " + equation + "\n" +
+                "bracketCount: " + bracketCount + "\n" +
+                "angleSize: " + angleSize + "\n";
+        return str;
+    }
 
     public CalculationMachine() {
         for(int i = 0; i < numbersArray.length; i++) {
@@ -135,6 +143,7 @@ public class CalculationMachine {
                 }
             }
         }
+        System.out.println(result);
         //Тут надо из настроек доставать сколько знаков после запятой показывать
         BigDecimal bd = new BigDecimal(result);
         bd = bd.setScale(3, RoundingMode.HALF_UP);
@@ -147,6 +156,7 @@ public class CalculationMachine {
         char[] simpleActions = {'^','*','/','+','-'};
         int bracketOpenCount = 0;
         int bracketCloseCount = 0;
+        bracketCount = 0;
         // Проверка выражения на правильный синтаксис
         for(int i = 0; i < equation.length(); i++) {
             if(equation.charAt(i) == '(') {
@@ -426,6 +436,30 @@ public class CalculationMachine {
                 System.out.println(equationSimplified);
             }
         }
+        //КОРНИ
+        searching = true;
+        while (searching) {
+            searching = false;
+            //SQRT
+            Pattern p = Pattern.compile("sqrt");
+            Matcher m = p.matcher(equationSimplified);
+            if (m.find()) {
+                searching = true;
+                equationSimplified.delete(m.start(), m.end());
+                equationSimplified.insert(m.start(), "@r");
+                System.out.println(equationSimplified);
+            }
+            //ROOT
+            p = Pattern.compile("root");
+            m = p.matcher(equationSimplified);
+            if (m.find()) {
+                searching = true;
+                char rootPower = equationSimplified.charAt(m.start() + 5);
+                equationSimplified.delete(m.start(), m.end() + 3);
+                equationSimplified.insert(m.start(), rootPower + "R");
+                System.out.println(equationSimplified);
+            }
+        }
     }
 
     private String mathAction(char action, char first, char second) {
@@ -542,10 +576,17 @@ public class CalculationMachine {
             case 'o':
                 answer += Math.log(secondNum) / Math.log(firstNum);
                 break;
+            //МОДУЛЬ
             case 'm':
-                System.out.println("abs(" + secondNum + ")");
                 answer += Math.abs(secondNum);
-                System.out.println(answer);
+                break;
+            //КВАДРАТНЫЙ КОРЕНЬ
+            case 'r':
+                answer += Math.sqrt(secondNum);
+                break;
+            //КОРЕНЬ
+            case 'R':
+                answer += Math.pow(secondNum,(1/firstNum));
                 break;
         }
         return answer;
@@ -617,5 +658,7 @@ public class CalculationMachine {
     ln -> 'L'
     log -> 'o' Lol
     |x| -> @m(x)
+    sqrt(z) -> @rx
+    root[a](b) -> aRb
         */
 }

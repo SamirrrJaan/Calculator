@@ -12,10 +12,13 @@ public class MainWindow {
     private Font actionsFont = new Font("Arial", 0 , 20);
     private Font fieldsFont = new Font("Arial", 0 , 20);
 
+    private ButtonsListener buttonListener;
+    private CalculationMachine calc = new CalculationMachine();
+
     private JPanel[] buttonRows = new JPanel[5];
     private JButton[][] buttons = new JButton[5][8];
     private String[][] buttonNames = {
-            {"deg", "str", "?", "set", "AC",   "<-", "->", "<X"},
+            {"deg", "str", "?", "set", "AC",   "<-",  "->", "<X"},
             {"sin",  "+",  "-",  "*",   "/",    "1",  "2",   "3"},
             {"cos",  "^", "sqrt","root","10^",  "4",  "5",   "6"},
             {"tg",  "log", "lg", "ln",  "|",    "7",  "8",   "9"},
@@ -23,6 +26,7 @@ public class MainWindow {
     };
     private GridLayout buttonsLayout = new GridLayout(1,8,0,0);
     private JFrame infoWindow = new JFrame();
+    private JFrame debugWindow = new JFrame();
 
     public MainWindow() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -37,6 +41,7 @@ public class MainWindow {
             windowHeight = 640;
         }
         createInfoWindow();
+        createDebugWindow();
     }
 
     public void createInterface() {
@@ -59,7 +64,7 @@ public class MainWindow {
                             size = 17;
                         }
                         actionsFont = new Font("Arial", Font.PLAIN, size);
-                        fieldsFont = new Font("Arial", Font.PLAIN, size-30);
+                        fieldsFont = new Font("Arial", Font.PLAIN, size/3*2);
                         for(int i = 0; i < 5; i++) {
                             for(int j = 0; j < 8; j++){
                                 buttons[i][j].setFont(actionsFont);
@@ -100,8 +105,7 @@ public class MainWindow {
                 buttonRows[i].add(buttons[i][j]);
             }
         }
-
-        ActionListener buttonListener = new ButtonsListener();
+        buttonListener = new ButtonsListener(calc);
         equalsButton.addActionListener(buttonListener);
         for(int i = 0; i < 5; i++) {
             for(int j = 0; j < 8; j++) {
@@ -134,6 +138,36 @@ public class MainWindow {
         infoPane.getVerticalScrollBar().setUnitIncrement(16);
         infoWindow.add(infoPane);
     }
+    private String everything1 = "";
+
+    public void createDebugWindow() {
+        debugWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        debugWindow.setSize(640, 480);
+        JTextArea info = new JTextArea("Информация/Information");
+        info.setFont(actionsFont);
+        JButton resetButton = new JButton("=");
+        resetButton.setActionCommand("reset");
+        resetButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String command = e.getActionCommand();
+                switch (command) {
+                    case "reset": {
+                        everything1 = calc.getInfo();
+                        info.setText(everything1);
+                        break;
+                    }
+                }
+            }
+        });
+        JPanel infoPanel = new JPanel();
+        infoPanel.add(info);
+        infoPanel.add(resetButton);
+        JScrollPane infoPane = new JScrollPane(infoPanel);
+        infoPane.getVerticalScrollBar().setUnitIncrement(16);
+        debugWindow.add(infoPane);
+        debugWindow.setVisible(true);
+    }
 
     public String readFile(String filename) throws IOException
     {
@@ -157,8 +191,12 @@ public class MainWindow {
     }
 
     public void setAnswer(String answer) {
+        //Искать паттерн DDDDD.DDDDDDD
+        //и если D до точки больше, чем 12, то выдавать ответ в степенной форме
+        answerField.requestFocusInWindow();
         answerField.setText(answer);
         answerField.requestFocusInWindow();
+        answerField.setCaretPosition(0);
     }
 
     public void setEquation(String equation) {
@@ -166,6 +204,10 @@ public class MainWindow {
         equationField.setText(equation);
         equationField.requestFocusInWindow();
         equationField.setCaretPosition(caretPos + 1);
+    }
+
+    public String getEquation() {
+        return equationField.getText();
     }
 
     public void setEquationAfterDelete(String equation) {
