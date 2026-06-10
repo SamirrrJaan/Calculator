@@ -6,13 +6,22 @@ import java.io.*;
 public class MainWindow {
     private int windowHeight;
     private int windowWidth;
+
     private JTextField equationField = new JTextField(10);
     private JTextField answerField = new JTextField(10);
+
     private JButton equalsButton = new JButton();
+
+    private JButton settingsButton = new JButton();
+    private int digitsAfterDot;
+
     private Font actionsFont = new Font("Arial", 0 , 20);
     private Font fieldsFont = new Font("Arial", 0 , 20);
 
     private ButtonsListener buttonListener;
+
+
+
     private CalculationMachine calc = new CalculationMachine();
 
     private JPanel[] buttonRows = new JPanel[5];
@@ -27,12 +36,13 @@ public class MainWindow {
     private GridLayout buttonsLayout = new GridLayout(1,8,0,0);
     private JFrame infoWindow = new JFrame();
     private JFrame debugWindow = new JFrame();
+    private JFrame settingsWindow = new JFrame();
 
     public MainWindow() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         windowWidth = gd.getDisplayMode().getWidth() / 2;
         windowHeight = gd.getDisplayMode().getHeight() / 2;
-        windowWidth = 1280;
+//        windowWidth = 1280;
         windowHeight = gd.getDisplayMode().getHeight() / 2;
         if(windowWidth < 640) {
             windowWidth = 640;
@@ -40,8 +50,10 @@ public class MainWindow {
         if(windowHeight < 640) {
             windowHeight = 640;
         }
+        digitsAfterDot = 3;
         createInfoWindow();
         createDebugWindow();
+        createSettingsWindow();
     }
 
     public void createInterface() {
@@ -56,7 +68,7 @@ public class MainWindow {
                         windowHeight = frame.getHeight();
                         windowWidth = frame.getWidth();
                         int size = Math.toIntExact(Math.round(0.084*windowWidth-37));
-                        System.out.println(size);
+                        //System.out.println(size);
                         if(size > 73) {
                             size = 73;
                         }
@@ -132,12 +144,31 @@ public class MainWindow {
             throw new RuntimeException(e);
         }
         info.setText(everything);
+        info.setEditable(false);
         JPanel infoPanel = new JPanel();
         infoPanel.add(info);
         JScrollPane infoPane = new JScrollPane(infoPanel);
         infoPane.getVerticalScrollBar().setUnitIncrement(16);
         infoWindow.add(infoPane);
     }
+
+    public void createSettingsWindow()  {
+        settingsWindow.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+
+        JPanel settingsPanel = new JPanel(new GridLayout(2, 1));
+        settingsButton = new JButton("Подтвердить");
+        settingsButton.setActionCommand("ConfirmSettings");
+        settingsButton.addActionListener(buttonListener);
+
+        settingsWindow.setSize(640, 480);
+        JTextArea info = new JTextArea("Настройки/Settings");
+        info.setFont(actionsFont);
+        info.setText("" + digitsAfterDot);
+        settingsPanel.add(info);
+        settingsPanel.add(settingsButton);
+        settingsWindow.add(settingsPanel);
+    }
+
     private String everything1 = "";
 
     public void createDebugWindow() {
@@ -232,8 +263,16 @@ public class MainWindow {
         infoWindow.setVisible(true);
     }
 
+    public void openSettingsWindow() {
+        settingsWindow.setVisible(true);
+    }
+
     public int getCaretPosition() {
         return equationField.getCaretPosition();
+    }
+
+    public int getDigitsAfterDot() {
+        return digitsAfterDot;
     }
 
     public JButton getButton(int i, int j) {

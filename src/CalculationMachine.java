@@ -10,12 +10,13 @@ public class CalculationMachine {
     private String[] numbersArray = new String[100];
     private final char[] digitsArray = {'0','1','2','3','4','5','6','7','8','9','.'};
     private final char[] actionsArray = {'r','R','m','o','l','L','s','c','t','k','S','C','T','K','^','*','/','+','-','f'};
-    private char[] variables = {'a','b','d','e','g','h','i','j','n','p','q','u','v','w','x','y','z','A','B','C','D',
-    'E','F','G','H','I','J','K','M','N','O','P','Q','S','T','U','V','W','X','Y','Z'};
+    private char[] variables = {'a','b','d','e','g','h','i','j','n','p','q','u','v','w','x','y','z','A','B','D',
+    'E','F','G','H','I','J','M','N','O','P','Q','U','V','W','X','Y','Z'};
     private int varId = 0;
     private int bracketCount = 0;
     private boolean noErrors = true;
     private char angleSize = 'd';
+    private int digitsAfterDot;
 
     public String getInfo() {
         String str = "";
@@ -29,17 +30,36 @@ public class CalculationMachine {
         for(int i = 0; i < numbersArray.length; i++) {
             numbersArray[i] = "nothing here";
         }
+        digitsAfterDot = 3; // Стандартно - 3 знака после запятой
+
+    }
+    public void setEquation(String equationNew) {
+        equation = equationNew; //Выражение меняется
+        System.out.println(equation + " EQUATION SETTED");
+        equation += " ";//В конец пробел для удобства
+        if(equation.charAt(0) == '-') {
+            equation = "0" + equation; //Если в самом начале минус, то представим, что есть ещё 0 ("-1+2" -> "0-1+2 ")
+        }
+        equationSimplified = new StringBuilder("");//Из вспомогательного equationSimplified удаляем всё, что там осталось
+        //Очищаем массив чисел
+        Arrays.fill(numbersArray, "nothing here");
     }
 
     public String getAnswer() {
+        System.out.println("Get answer started");
         String result = "Incorrect";
+        //Заменяем запись модуля на удобную: |a| = @m(a)
+        simplifyAbsoluteValue();
         checkForErrors();
         if(noErrors) {
             //Тут неведомо сложный механизм замены чисел на переменные
             simplifyTheEquation();
+            equation = equationSimplified.toString();
+            checkForErrors();
             //Механизм такой:
             //1.Считаем количество скобок.
             //2.Делаем по порядку сначала самые вложенные скобки, а в скобках по порядку действия
+            System.out.println("bracket count: " + bracketCount);
             for(int z = 0; z < bracketCount/2 + 1; z++) {
                 boolean bracketWasFound = false; //Была ли найдена скобка
                 int bracketPower = 0; //Степень вложенности скобки
@@ -71,7 +91,7 @@ public class CalculationMachine {
                 }
                 //Вводим новую строку - подстроку, в которой всё то, что в самой вложенной скобке
                 StringBuilder subEquation = new StringBuilder(equationSimplified.substring(bracketPowerMaxId + 1, bracketPowerMaxCloseId));
-                System.out.println(subEquation);
+                //System.out.println(subEquation);
                 int operatorsCount = 0; //Дальше проводим счёт сколько в этой строке операторов
                 for(int i = 0; i < subEquation.length(); i++) {
                     for(int j = 0; j < actionsArray.length; j++) {
@@ -83,7 +103,7 @@ public class CalculationMachine {
                 //private final char[] actionsArray = {'^','*','/','+','-'}; Дальше ищем оператор, который нужно выполнить первым,
                 // порядок выполнения в ^^^^^^^^^^
                 for(int x = 0; x < operatorsCount; x++) {
-                    int operationFirst = 0; //Индекс в subEqution = индексу первого по выполнению оператора
+                    int operationFirst = 0; //Индекс в subEquation = индексу первого по выполнению оператора
                     boolean stopSearching = false; //Логика для того, чтобы не проверять уже точно не первые операторы
                     for(int i = 0; i < actionsArray.length; i++) {
                         if(!stopSearching) {
@@ -99,8 +119,10 @@ public class CalculationMachine {
                             break;
                         }
                     }
+                    System.out.println(subEquation);
                     //отправляем в mathAction оператора и элементы сбоку от него(два числа)
-                    System.out.println(Arrays.toString(numbersArray));
+                    System.out.println("mathAction(" + subEquation.charAt(operationFirst - 1) + subEquation.charAt(operationFirst) +
+                            subEquation.charAt(operationFirst + 1) + ")");
                     String str = mathAction(subEquation.charAt(operationFirst), subEquation.charAt(operationFirst - 1),
                             subEquation.charAt(operationFirst + 1));
                     for (int j = 0; j < variables.length; j++) {
@@ -123,11 +145,11 @@ public class CalculationMachine {
                     System.out.println(Arrays.toString(numbersArray));
                     subEquation.delete((operationFirst - 1), (operationFirst + 2));//Заменяем в подстроке то, что мы посчитали на новую переменную
                     subEquation.insert(operationFirst - 1, variables[varId]);
-                    System.out.println(numbersArray[varId]);
+                    //System.out.println(numbersArray[varId]);
                     System.out.println(subEquation);
                 }
-                //Случай, если скобок нет
                 if(bracketWasFound) {
+                    //System.out.println("brWasFound");
                     equationSimplified.delete(bracketPowerMaxId, bracketPowerMaxCloseId + 1);
                     equationSimplified.insert(bracketPowerMaxId, subEquation);
                 }
@@ -135,7 +157,7 @@ public class CalculationMachine {
                     equationSimplified.delete(0, equationSimplified.length());
                     equationSimplified.insert(0, subEquation);
                 }
-                System.out.println(equationSimplified + " SASASASASASA");
+                //System.out.println("After action " + equationSimplified);
                 for(int i = 0; i < variables.length; i++) {
                     if(equationSimplified.charAt(0) == variables[i]) {
                         result = numbersArray[i];
@@ -143,11 +165,12 @@ public class CalculationMachine {
                 }
             }
         }
-        System.out.println(result);
         //Тут надо из настроек доставать сколько знаков после запятой показывать
         BigDecimal bd = new BigDecimal(result);
-        bd = bd.setScale(3, RoundingMode.HALF_UP);
+        bd = bd.setScale(digitsAfterDot, RoundingMode.HALF_UP);
         result = bd.toString();
+        System.out.println("Get answer ended ------------------------------------------------------");
+        System.out.println("Anwer is:" + result);
         return result;
     }
 
@@ -184,7 +207,7 @@ public class CalculationMachine {
             error("notSameBracketCount");
         }
         // Если подряд два знака действия
-
+        /// ПЕРЕПИСАТЬ ИСПОЛЬЗУЯ КОЛЛЕКЦИЮ
         else {
             for(int i = 0; i < equation.length() - 1; i++) {
                 for(int j = 0; j < simpleActions.length; j++) {
@@ -202,6 +225,7 @@ public class CalculationMachine {
     }
 
     private void simplifyTheEquation() {
+        System.out.println("SimpEq started ------------------------------------------------------");
         equationSimplified.append(equation);
         System.out.println(equationSimplified);
         //С самого начала заменяем пи и экспоненту на числа им соответствующие.
@@ -214,7 +238,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "" + Math.PI);
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
             p = Pattern.compile("e");
             m = p.matcher(equationSimplified);
@@ -222,7 +246,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "" + Math.exp(1));
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
         }
         //Не отходя от кассы заменим 12! на 12f@.
@@ -280,8 +304,8 @@ public class CalculationMachine {
                     break;
                 }
             }
-            System.out.println(equationSimplified);
-            System.out.println(Arrays.toString(numbersArray));
+            //System.out.println(equationSimplified);
+            //System.out.println(Arrays.toString(numbersArray));
             digitWasFound4 = false;
             for (int i = 0; i < equationSimplified.length(); i++) {
                 for (int j = 0; j < digitsArray.length; j++) {
@@ -304,8 +328,8 @@ public class CalculationMachine {
                             numbersArray[j] = "-" + numbersArray[j];
                             equationSimplified.deleteCharAt(i + 1);
                             searching = true;
-                            System.out.println(equationSimplified);
-                            System.out.println(Arrays.toString(numbersArray));
+                            //System.out.println(equationSimplified);
+                            //System.out.println(Arrays.toString(numbersArray));
                             break;
                         }
                     }
@@ -318,6 +342,7 @@ public class CalculationMachine {
         //ЛОГАРИФМЫ. Заменяем логарифмы на их упрощённые версии
         searching = true;
         while(searching) {
+            //Десятичный логарифм lg(...) -> @l(...)
             searching = false;
             Pattern p = Pattern.compile("lg");
             Matcher m = p.matcher(equationSimplified);
@@ -325,24 +350,29 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@l");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
+            //Натуральный логарифм ln(...) -> @L(...)
             p = Pattern.compile("ln");
             m = p.matcher(equationSimplified);
             if (m.find()) {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@L");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
+            //Просто логарифм log[...](...*) -> (...)o(...*)
             p = Pattern.compile("log"); //log[a](b)
             m = p.matcher(equationSimplified);
             if (m.find()) {
                 searching = true;
-                char logPower = equationSimplified.charAt(m.start() + 4);
-                equationSimplified.delete(m.start(), m.end() + 3);
-                equationSimplified.insert(m.start(), logPower + "o");
-                System.out.println(equationSimplified);
+                for(int i = m.start(); i < equationSimplified.length(); i++) {
+                    if(equationSimplified.charAt(i) == ']') {
+                        equationSimplified.replace(i, i+1,")o");
+                        equationSimplified.replace(m.start(), m.end() + 1, "(");
+                    }
+                }
+                //System.out.println(equationSimplified);
             }
         }
         //Сначала заменяем все аркфункции на их упрощённые версии
@@ -358,7 +388,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@S");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
             //ARC COSINUS
             p = Pattern.compile("arccos");
@@ -367,7 +397,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@C");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
             //ARC TANGENT
             p = Pattern.compile("arctg");
@@ -376,7 +406,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@T");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
             //ARC COTANGENT
             p = Pattern.compile("arcctg");
@@ -385,7 +415,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@K");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
         }
         //После аркфункций заменяем уже обычные тригонометрические
@@ -402,16 +432,16 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@s");
-                System.out.println(equationSimplified);
-                //COSINUS
-                p = Pattern.compile("cos");
-                m = p.matcher(equationSimplified);
+                //System.out.println(equationSimplified);
             }
+            //COSINUS
+            p = Pattern.compile("cos");
+            m = p.matcher(equationSimplified);
             if (m.find()) {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@c");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
             //COTANGENT
             p = Pattern.compile("ctg");
@@ -420,7 +450,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@k");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
         }
         searching = true;
@@ -433,7 +463,7 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@t");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
         }
         //КОРНИ
@@ -447,25 +477,32 @@ public class CalculationMachine {
                 searching = true;
                 equationSimplified.delete(m.start(), m.end());
                 equationSimplified.insert(m.start(), "@r");
-                System.out.println(equationSimplified);
+                //System.out.println(equationSimplified);
             }
             //ROOT
-            p = Pattern.compile("root");
+            p = Pattern.compile("root"); //log[a](b)
             m = p.matcher(equationSimplified);
             if (m.find()) {
                 searching = true;
-                char rootPower = equationSimplified.charAt(m.start() + 5);
-                equationSimplified.delete(m.start(), m.end() + 3);
-                equationSimplified.insert(m.start(), rootPower + "R");
-                System.out.println(equationSimplified);
+                System.out.println("Root simplification");
+                System.out.println("Equation now: " + equationSimplified);
+                for(int i = m.start(); i < equationSimplified.length(); i++) {
+                    if(equationSimplified.charAt(i) == ']') {
+                        equationSimplified.replace(i, i+1,")R");
+                        equationSimplified.replace(m.start(), m.end() + 1, "(");
+                    }
+                }
+                System.out.println("Equation now:" + equationSimplified);
             }
         }
+        System.out.println("SimpEq ended ------------------------------------------------------");
     }
 
     private String mathAction(char action, char first, char second) {
         String answer = "";
         double firstNum = 0;
         double secondNum = 0;
+        //System.out.println("QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ");
         for(int i = 0; i < variables.length; i++) {
             if(variables[i] == first) {
                 firstNum = Double.parseDouble(numbersArray[i]);
@@ -482,7 +519,6 @@ public class CalculationMachine {
                 int fact = 1;
                 for(int i = 1; i <= firstNum; i++) {
                     fact *= i;
-                    System.out.println(fact);
                 }
                 answer += fact;
                 break;
@@ -586,28 +622,21 @@ public class CalculationMachine {
                 break;
             //КОРЕНЬ
             case 'R':
+                //System.out.println("WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW");
+                //System.out.println(secondNum + "^(1/" + firstNum + ")");
                 answer += Math.pow(secondNum,(1/firstNum));
                 break;
         }
         return answer;
     }
 
-    public void setEquation(String equationNew) {
-        equation = equationNew; //Выражение меняется
-        System.out.println(equation + "EQUATION SETTED");
-        equation += " ";//В конец пробел для удобства
-        if(equation.charAt(0) == '-') {
-            equation = "0" + equation; //Если в самом начале минус, то представим, что есть ещё 0 ("-1+2" -> "0-1+2 ")
-        }
-        equationSimplified.delete(0, equationSimplified.length());//Из вспомогательного equationSimplified удаляем всё, что там осталось
-        //Очищаем массив чисел
-        Arrays.fill(numbersArray, "nothing here");
-        makeEquationGreatAgain();
+    public void setDigitsAfterDot(int i) {
+        digitsAfterDot =i;
     }
+
     //Этим методом заменяем все модули на его упрощённую версию.
-    public void makeEquationGreatAgain() {
+    public void simplifyAbsoluteValue() {
         StringBuilder sb = new StringBuilder(equation);
-        boolean notGreatYet = true;
         boolean searching = true;
         while(searching) {
             searching = false;
@@ -627,18 +656,9 @@ public class CalculationMachine {
         }
         equation = sb.toString();
     }
+
     public void error(String type) {
-        switch(type) {
-            case "oddBracket":
-                System.out.println(type);
-                break;
-            case "notSameBracketCount":
-                System.out.println(type);
-                break;
-            case "actionByAction":
-                System.out.println(type);
-                break;
-        }
+        throw new UnsupportedOperationException(type);
     }
 
     public void setAngleSize(char angleSize) {

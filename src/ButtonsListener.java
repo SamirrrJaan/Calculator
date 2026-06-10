@@ -16,7 +16,7 @@ public class ButtonsListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         int caretPos = mainWindow.getCaretPosition();
-        System.out.println(caretPos);
+        //System.out.println(caretPos);
         switch (command) {
             case "<-":
                 mainWindow.moveCaret("Left", 1);
@@ -240,6 +240,11 @@ public class ButtonsListener implements ActionListener {
             case "?":
                 mainWindow.openInfoWindow();
                 break;
+            case "set":
+                mainWindow.openSettingsWindow();
+                break;
+            case "ConfirmSettings":
+                calc.setDigitsAfterDot(mainWindow.getDigitsAfterDot());
         }
     }
 
