@@ -631,7 +631,7 @@ public class CalculationMachine {
     }
 
     public void setDigitsAfterDot(int i) {
-        digitsAfterDot =i;
+        digitsAfterDot = i;
     }
 
     //Этим методом заменяем все модули на его упрощённую версию.

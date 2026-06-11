@@ -12,15 +12,14 @@ public class MainWindow {
 
     private JButton equalsButton = new JButton();
 
-    private JButton settingsButton = new JButton();
+    private JButton settingsButton;
     private int digitsAfterDot;
 
+    private Font settingsFont = new Font("Arial", 0 , 20);
     private Font actionsFont = new Font("Arial", 0 , 20);
     private Font fieldsFont = new Font("Arial", 0 , 20);
 
     private ButtonsListener buttonListener;
-
-
 
     private CalculationMachine calc = new CalculationMachine();
 
@@ -37,6 +36,8 @@ public class MainWindow {
     private JFrame infoWindow = new JFrame();
     private JFrame debugWindow = new JFrame();
     private JFrame settingsWindow = new JFrame();
+    private JTextArea dots;
+    private JTextArea info;;
 
     public MainWindow() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
@@ -50,10 +51,9 @@ public class MainWindow {
         if(windowHeight < 640) {
             windowHeight = 640;
         }
+        info = new JTextArea();
+        dots = new JTextArea();
         digitsAfterDot = 3;
-        createInfoWindow();
-        createDebugWindow();
-        createSettingsWindow();
     }
 
     public void createInterface() {
@@ -102,7 +102,7 @@ public class MainWindow {
             JPanel subRow1 = new JPanel();
             subRow1.setLayout(row1Layout);
             subRow1.add(answerField);
-            JButton equalsButton = new JButton("=");
+            equalsButton = new JButton("=");
             equalsButton.setActionCommand("=");
             //equalsButton.setBorder(Border );???????????????????????????
             subRow1.add(equalsButton);
@@ -130,6 +130,9 @@ public class MainWindow {
         }
         frame.getContentPane().add(main);
         frame.setVisible(true);
+        createInfoWindow();
+        createDebugWindow();
+        createSettingsWindow();
     }
 
     public void createInfoWindow()  {
@@ -157,14 +160,24 @@ public class MainWindow {
 
         JPanel settingsPanel = new JPanel(new GridLayout(2, 1));
         settingsButton = new JButton("Подтвердить");
-        settingsButton.setActionCommand("ConfirmSettings");
+        settingsButton.setActionCommand("CS");
         settingsButton.addActionListener(buttonListener);
 
         settingsWindow.setSize(640, 480);
-        JTextArea info = new JTextArea("Настройки/Settings");
-        info.setFont(actionsFont);
-        info.setText("" + digitsAfterDot);
-        settingsPanel.add(info);
+        JPanel settingsPanel1 = new JPanel(new GridLayout(2,1));
+
+
+        dots.setFont(settingsFont);
+        dots.setText("" + digitsAfterDot);
+
+        info.setFont(settingsFont);
+        info.setText("Введите количество знаков после запятой:");
+
+        settingsPanel1.add(info);
+        settingsPanel1.add(dots);
+
+        info.setEditable(false);
+        settingsPanel.add(settingsPanel1);
         settingsPanel.add(settingsButton);
         settingsWindow.add(settingsPanel);
     }
@@ -277,5 +290,21 @@ public class MainWindow {
 
     public JButton getButton(int i, int j) {
          return buttons[i][j];
+    }
+
+    public boolean refreshDigitsAfterDot() {
+        try {
+            if(Integer.parseInt(dots.getText()) < 0) {
+                info.setText("Введите целое неотрицательное число");
+                return false;
+            } else {
+                digitsAfterDot = Integer.parseInt(dots.getText());
+                info.setText("Введите количество знаков после запятой:");
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            info.setText("Введите целое неотрицательное число");
+            return false;
+        }
     }
 }

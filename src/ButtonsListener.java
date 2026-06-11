@@ -243,8 +243,12 @@ public class ButtonsListener implements ActionListener {
             case "set":
                 mainWindow.openSettingsWindow();
                 break;
-            case "ConfirmSettings":
-                calc.setDigitsAfterDot(mainWindow.getDigitsAfterDot());
+            case "CS":
+                System.out.println("ConfirmSettings");
+                if(mainWindow.refreshDigitsAfterDot()) {
+                    calc.setDigitsAfterDot(mainWindow.getDigitsAfterDot());
+                }
+                break;
         }
     }
 
